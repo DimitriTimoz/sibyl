@@ -1,7 +1,6 @@
-use crate::forcasting::{Config, Model};
-use tch::Tensor;
+use sibyl_core::Series;
 
-use super::Series;
+use super::{Config, Model};
 
 pub struct AutoRegressiveConfig {
     pub order: usize,
@@ -12,9 +11,8 @@ impl Default for AutoRegressiveConfig {
         Self { order: 1 }
     }
 }
-    
-impl Config for AutoRegressiveConfig {
-}
+
+impl Config for AutoRegressiveConfig {}
 
 pub struct AutoRegressiveModel<S: Series> {
     // config: AutoRegressiveConfig,
@@ -27,7 +25,10 @@ impl<S: Series> Model for AutoRegressiveModel<S> {
     type Config = AutoRegressiveConfig;
     type S = S;
 
-    fn new(config: Self::Config) -> Self where Self: Sized {
+    fn new(config: Self::Config) -> Self
+    where
+        Self: Sized,
+    {
         Self {
             coefficients: Vec::with_capacity(config.order),
             // config,
@@ -42,7 +43,7 @@ impl<S: Series> Model for AutoRegressiveModel<S> {
     }
 
     fn predict(&self, series: &Self::S, steps: usize) -> Self::S {
-        let mut predictions = series.clone();
+        let predictions = series;
         todo!();
         // Vec::new()
     }
