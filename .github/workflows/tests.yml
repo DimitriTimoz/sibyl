@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Cargo.lock'
+      - '**.rs'
+      - '**.sh'
+      - '**.ps1'
+      - '**.yml'
+      - '**.toml'
+      - '!**.md'
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'Cargo.lock'
+      - '**.rs'
+      - '**.sh'
+      - '**.ps1'
+      - '**.yml'
+      - '**.toml'
+      - '!**.md'
+
+env:
+  RUST_PREVIOUS_VERSION: 1.90.0
+  # Test in release mode (make it an empty string to test in debug mode)
+  TEST_RELEASE_FLAG: "--release"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prepare-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      rust-prev-version: ${{ env.RUST_PREVIOUS_VERSION }}
+    steps:
+      - name: Do Nothing
+        if: false
+        run: echo
+
+  code-quality:
+    runs-on: ubuntu-22.04
+    needs: prepare-checks
+    strategy:
+      matrix:
+        rust: [stable]
+        include:
+          - rust: stable
+            toolchain: stable
+    steps:
+      - name: Setup Rust
+        uses: tracel-ai/github-actions/setup-rust@v4
+        with:
+          rust-toolchain: ${{ matrix.toolchain }}
+          cache-key: ${{ matrix.rust }}-linux
+      # --------------------------------------------------------------------------------
+      - name: Format
+        shell: bash
+        env:
+          # work around for colors
+          # see: https://github.com/rust-lang/rustfmt/issues/3385
+          TERM: xterm-256color
+        run: cargo fmt --all -- --check
+      # --------------------------------------------------------------------------------
+      - name: Lint
+        run: cargo clippy --all-targets --all-features -- -D warnings
