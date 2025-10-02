@@ -16,7 +16,7 @@ impl Config for AutoRegressiveConfig {}
 
 pub struct AutoRegressiveModel<S: Series> {
     // config: AutoRegressiveConfig,
-    _coefficients: Vec<f64>,
+    coefficients: Vec<f64>,
     _marker: std::marker::PhantomData<S>,
     trained: bool,
 }
@@ -30,7 +30,7 @@ impl<S: Series> Model for AutoRegressiveModel<S> {
         Self: Sized,
     {
         Self {
-            _coefficients: Vec::with_capacity(config.order),
+            coefficients: Vec::with_capacity(config.order),
             // config,
             trained: false,
             _marker: std::marker::PhantomData,
@@ -42,9 +42,40 @@ impl<S: Series> Model for AutoRegressiveModel<S> {
         todo!();
     }
 
-    fn predict(&self, series: &Self::S, _steps: usize) -> Self::S {
-        let _predictions = series;
-        todo!();
-        // Vec::new()
+    fn predict(&self, series: &Self::S, steps: usize) -> Self::S {
+        if !self.trained {
+            panic!("Model must be trained before prediction.");
+        }
+        let mut prediction = Vec::with_capacity(steps);
+        let data = series.as_slice();
+        for s in 0..steps {
+            for i in 0..self.coefficients.len() {
+                let idx = data.len().saturating_sub(i + 1);
+                let value = if idx < data.len() { data[idx] } else { 0.0 };
+                let coeff = self.coefficients.get(i).cloned().unwrap_or(0.0);
+                if prediction.len() <= i {
+                    prediction.push(0.0);
+                }
+                prediction[s] += coeff * value;
+            }
+            
+        }
+        Self::S::from(prediction)
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sibyl_core::Series;
+
+    #[test]
+    #[should_panic(expected = "Model must be trained before prediction.")]
+    fn test_ar_predict_before_training() {
+        let config = AutoRegressiveConfig { order: 2 };
+        let mut model = AutoRegressiveModel::<Vec<f64>>::new(config);
+        let series = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        let prediction = model.predict(&series, 1);
     }
 }
