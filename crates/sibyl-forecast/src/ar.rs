@@ -16,7 +16,7 @@ impl Config for AutoRegressiveConfig {}
 
 pub struct AutoRegressiveModel<S: Series> {
     // config: AutoRegressiveConfig,
-    coefficients: Vec<f64>,
+    _coefficients: Vec<f64>,
     _marker: std::marker::PhantomData<S>,
     trained: bool,
 }
@@ -30,20 +30,20 @@ impl<S: Series> Model for AutoRegressiveModel<S> {
         Self: Sized,
     {
         Self {
-            coefficients: Vec::with_capacity(config.order),
+            _coefficients: Vec::with_capacity(config.order),
             // config,
             trained: false,
             _marker: std::marker::PhantomData,
         }
     }
 
-    fn fit(&mut self, series: &Self::S) {
-        todo!();
+    fn fit(&mut self, _series: &Self::S) {
         self.trained = true;
+        todo!();
     }
 
-    fn predict(&self, series: &Self::S, steps: usize) -> Self::S {
-        let predictions = series;
+    fn predict(&self, series: &Self::S, _steps: usize) -> Self::S {
+        let _predictions = series;
         todo!();
         // Vec::new()
     }
