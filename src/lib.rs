@@ -1,6 +1,7 @@
 pub mod prelude;
 pub mod forcasting;
 
+
 pub trait Series {
     fn as_slice(&self) -> &[f64];
 }
