@@ -1,2 +1,5 @@
 [workspace]
 members = ["crates/sibyl-core", "crates/sibyl-forecast", "crates/sibyl-signal"]
+
+[workspace.dependencies]
+num-traits = "0.2.19"

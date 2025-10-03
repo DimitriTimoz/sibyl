@@ -1,14 +1,11 @@
-pub trait Series {
-    fn as_slice(&self) -> &[f64];
-    fn from(data: Vec<f64>) -> Self;
-}
+use num_traits::Float;
 
-impl Series for Vec<f64> {
-    fn as_slice(&self) -> &[f64] {
-        self.as_slice()
-    }
+pub trait Series 
+{
+    type Elem: Float;
 
-    fn from(data: Vec<f64>) -> Self {
-        data
-    }
+    fn as_slice(&self) -> &[Self::Elem];
+    fn from(vec: Vec<Self::Elem>) -> Self
+    where
+        Self: Sized;
 }
