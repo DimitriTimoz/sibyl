@@ -1,6 +1,6 @@
-use sibyl_core::Series;
 use super::{Config, Model};
 use num_traits::Zero;
+use sibyl_core::Series;
 
 pub struct AutoRegressiveConfig {
     pub order: usize,
@@ -51,19 +51,21 @@ impl<S: Series> Model for AutoRegressiveModel<S> {
         for s in 0..steps {
             for i in 0..self.coefficients.len() {
                 let idx = data.len().saturating_sub(i + 1);
-                let value = if idx < data.len() { data[idx] } else { S::Elem::zero() };
+                let value = if idx < data.len() {
+                    data[idx]
+                } else {
+                    S::Elem::zero()
+                };
                 let coeff = self.coefficients.get(i).cloned().unwrap_or(0.0);
                 if prediction.len() <= i {
                     prediction.push(Zero::zero());
                 }
                 prediction[s] += coeff * value;
             }
-            
         }
         Self::S::from(prediction)
     }
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -1,7 +1,6 @@
 use num_traits::Float;
 
-pub trait Series 
-{
+pub trait Series {
     type Elem: Float;
 
     fn as_slice(&self) -> &[Self::Elem];
